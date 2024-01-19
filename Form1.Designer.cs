@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Core;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -34,13 +35,21 @@ namespace WallpaperChange
             InitializeConsole();
             _wallpaperService = wallpaperService;
             _wallpaperService.Start();
-            
-            // Инициализация таймера
-            wallpaperCheckTimer = new System.Windows.Forms.Timer();
-            wallpaperCheckTimer.Interval = 2000; // Период проверки в миллисекундах (здесь 2 секунды)
-            wallpaperCheckTimer.Tick += WallpaperCheckTimer_Tick;
-            wallpaperCheckTimer.Start();
+            string[] imageFiles = WallpaperService.GetImageFiles(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+            if (imageFiles.Length > 0)
+            {
+                // Инициализация таймера
+                wallpaperCheckTimer = new System.Windows.Forms.Timer();
+                wallpaperCheckTimer.Interval = 2000; // Период проверки в миллисекундах (здесь 2 секунды)
+                wallpaperCheckTimer.Tick += WallpaperCheckTimer_Tick;
+                wallpaperCheckTimer.Start();
+            }
+            else
+            {
+                Log.Error("Ошибка: Файл изображения не найден. Добавте изображение в кореневую папку прогррамы. ");             
+            }
             this.Text = "WalpeaperChange";
+            this.Icon = new Icon(GetType(), "Icon.ico");
         }
         private void WallpaperCheckTimer_Tick(object sender, EventArgs e)
         {
@@ -131,6 +140,7 @@ namespace WallpaperChange
         }
         private class ControlWriter : System.IO.TextWriter
         {
+            
             private readonly RichTextBox _textBox;
 
             public ControlWriter(RichTextBox textBox)
@@ -140,36 +150,55 @@ namespace WallpaperChange
 
             public override void Write(char value)
             {
-                _textBox.AppendText(value.ToString());
+                try
+                {
+                    _textBox.AppendText(value.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Log.Fatal(ex, "Произошла ошибка в _textBox.AppendText(value.ToString())");
+                   
+                }
             }
 
             public override void Write(string value)
             {
-                _textBox.AppendText(value);
+                try
+                {
+                    _textBox.AppendText(value);
+                }
+                catch (Exception ex)
+                {
+                    Log.Fatal(ex, "Произошла ошибка в   _textBox.AppendText(value);");
+                    
+                }
             }
 
             public override System.Text.Encoding Encoding
             {
                 get { return System.Text.Encoding.UTF8; }
             }
+        
+      
         }
+       
 
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing && (components != null))
-        //    {
-        //        components.Dispose();
-        //    }
-        //    base.Dispose(disposing);
-        //}
+    //protected override void Dispose(bool disposing)
+    //{
+    //    if (disposing && (components != null))
+    //    {
+    //        components.Dispose();
+    //    }
+    //    base.Dispose(disposing);
+    //}
 
-        #region Windows Form Designer generated code
+    #region Windows Form Designer generated code
 
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
+    /// <summary>
+    ///  Required method for Designer support - do not modify
+    ///  the contents of this method with the code editor.
+    /// </summary>
+    private void InitializeComponent()
         {
             SuspendLayout();
             // 

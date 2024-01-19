@@ -35,7 +35,7 @@ namespace WorkerService1
         public void CheckWallpaperChange()
         {
             string currentWallpaperPath = GetCurrentWallpaperPath();
-            string[] imageFiles = GetImageFiles();
+            string[] imageFiles = GetImageFiles(folderPath);
             if (imageFiles.Length > 0)
             {
                
@@ -46,7 +46,7 @@ namespace WorkerService1
                         _logger.LogInformation("Обнаружили изменение бекграунда");
                         _logger.LogInformation($"currentWallpaperPath={currentWallpaperPath}");
                         _logger.LogInformation($"lastWallpaperPath={lastWallpaperPath}");
-
+                         
                         Wallpaper.Set(imageFiles[0], _logger);
                         _logger.LogInformation($"Wallpaper Set task is started for: {imageFiles[0]}");
                        
@@ -58,13 +58,15 @@ namespace WorkerService1
             else
             {
                 _logger.LogError("Ошибка: Нет файлов изображений для установки обоев.");
+                
+             
             }
         } 
     
 
         private void InitializeWallpaper()
         {
-            string[] imageFiles = GetImageFiles();
+            string[] imageFiles = GetImageFiles(folderPath);
           
 
             if (imageFiles.Length > 0)
@@ -76,6 +78,7 @@ namespace WorkerService1
             else
             {
                 _logger.LogError("Ошибка: Файл изображения не найден.");
+               
             }
         }
 
@@ -85,7 +88,7 @@ namespace WorkerService1
             return key?.GetValue("Wallpaper").ToString();
         }
 
-        private string[] GetImageFiles()
+        public static string[] GetImageFiles(string folderPath)
         {
             return Directory.GetFiles(folderPath, "*.jpg", SearchOption.TopDirectoryOnly)
                 .Concat(Directory.GetFiles(folderPath, "*.png", SearchOption.TopDirectoryOnly))
