@@ -35,25 +35,32 @@ namespace WorkerService1
         public void CheckWallpaperChange()
         {
             string currentWallpaperPath = GetCurrentWallpaperPath();
-
-            if (!string.Equals(currentWallpaperPath, lastWallpaperPath, StringComparison.OrdinalIgnoreCase))
+            string[] imageFiles = GetImageFiles();
+            if (imageFiles.Length > 0)
             {
-                _logger.LogInformation("Обнаружили изменение бекграунда");
-                string[] imageFiles = GetImageFiles();
+               
+                if (lastWallpaperPath != imageFiles[0])
+                {
+                    if (!string.Equals(currentWallpaperPath, lastWallpaperPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogInformation("Обнаружили изменение бекграунда");
+                        _logger.LogInformation($"currentWallpaperPath={currentWallpaperPath}");
+                        _logger.LogInformation($"lastWallpaperPath={lastWallpaperPath}");
 
-                if (imageFiles.Length > 0)
-                {
-                    Wallpaper.Set(imageFiles[0], _logger);
-                    _logger.LogInformation($"Wallpaper Set task is started for: {imageFiles[0]}");
+                        Wallpaper.Set(imageFiles[0], _logger);
+                        _logger.LogInformation($"Wallpaper Set task is started for: {imageFiles[0]}");
+                       
+                 
+                        _logger.LogInformation($"Wallpaper changed: {lastWallpaperPath}");
+                    }
                 }
-                else
-                {
-                    _logger.LogError("Ошибка: Нет файлов изображений для установки обоев.");
-                }
-                lastWallpaperPath = GetCurrentWallpaperPath();
-                _logger.LogInformation($"Wallpaper changed: {lastWallpaperPath}");
             }
-        }
+            else
+            {
+                _logger.LogError("Ошибка: Нет файлов изображений для установки обоев.");
+            }
+        } 
+    
 
         private void InitializeWallpaper()
         {
@@ -64,7 +71,7 @@ namespace WorkerService1
             {
                 lastWallpaperPath = imageFiles[0];
                 Wallpaper.Set(lastWallpaperPath, _logger);
-               
+                lastWallpaperPath= GetCurrentWallpaperPath();
             }
             else
             {
