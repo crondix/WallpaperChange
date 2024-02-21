@@ -44,10 +44,23 @@ namespace WorkerService1
                     if (!string.Equals(currentWallpaperPath, lastWallpaperPath, StringComparison.OrdinalIgnoreCase))
                     {
                         _logger.LogInformation("Обнаружили изменение бекграунда");
-                        _logger.LogInformation($"currentWallpaperPath={currentWallpaperPath}");
-                        _logger.LogInformation($"lastWallpaperPath={lastWallpaperPath}");
+                        object currentValue = Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Colors", "Background", null);
+                        if (currentValue != null && !string.IsNullOrWhiteSpace(currentValue.ToString()))
+                        {
+                            _logger.LogInformation("Фон установлен в виде сплошного цвета");
+                            // Установка значения "" только если текущее значение не пустое
+                            Registry.SetValue(@"HKEY_CURRENT_USER\Control Panel\Colors", "Background", "");
+                          
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"currentWallpaperPath={currentWallpaperPath}");
+                            _logger.LogInformation($"lastWallpaperPath={lastWallpaperPath}");
+                        }
+                        
                          
                         Wallpaper.Set(imageFiles[0], _logger);
+                        
                         _logger.LogInformation($"Wallpaper Set task is started for: {imageFiles[0]}");
                        
                  
@@ -73,7 +86,15 @@ namespace WorkerService1
             {
                 lastWallpaperPath = imageFiles[0];
                 Wallpaper.Set(lastWallpaperPath, _logger);
-                lastWallpaperPath= GetCurrentWallpaperPath();
+                object currentValue = Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Colors", "Background", null);
+                if (currentValue != null && !string.IsNullOrWhiteSpace(currentValue.ToString()))
+                {
+                    _logger.LogInformation("Изначально фон был установлен в виде сплошного цвета");
+                    Registry.SetValue(@"HKEY_CURRENT_USER\Control Panel\Colors", "Background", "");
+                   
+                }
+                lastWallpaperPath = GetCurrentWallpaperPath();
+                _logger.LogInformation($"Инициализация:Фон изменен на предоставленный файл изображения");
             }
             else
             {
