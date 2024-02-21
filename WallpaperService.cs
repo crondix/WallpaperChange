@@ -38,13 +38,13 @@ namespace WorkerService1
             string[] imageFiles = GetImageFiles(folderPath);
             if (imageFiles.Length > 0)
             {
-               
-                if (lastWallpaperPath != imageFiles[0])
+                object currentValue = Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Colors", "Background", null);
+                if (lastWallpaperPath != imageFiles[0] || (currentValue != null && !string.IsNullOrWhiteSpace(currentValue.ToString())))
                 {
-                    if (!string.Equals(currentWallpaperPath, lastWallpaperPath, StringComparison.OrdinalIgnoreCase))
+                    if (!string.Equals(currentWallpaperPath, lastWallpaperPath, StringComparison.OrdinalIgnoreCase)|| (currentValue != null && !string.IsNullOrWhiteSpace(currentValue.ToString())))
                     {
                         _logger.LogInformation("Обнаружили изменение бекграунда");
-                        object currentValue = Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Colors", "Background", null);
+                        
                         if (currentValue != null && !string.IsNullOrWhiteSpace(currentValue.ToString()))
                         {
                             _logger.LogInformation("Фон установлен в виде сплошного цвета");

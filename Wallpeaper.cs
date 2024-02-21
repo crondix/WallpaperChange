@@ -42,7 +42,7 @@ namespace WorkerService1
                     SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, tempPath, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
                     //SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
                     Thread.Sleep(1000);
-                    File.Delete(tempPath);
+                
                 }
                
             }
